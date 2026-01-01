@@ -13,27 +13,34 @@ C++新增一种复合类型——引用变量，引用是已定义的变量的�
 ### 创建引用变量
 C和C++使用`&`符号来知识变量的地址，C++赋予了`&`符号一个特殊的功能，即创建引用变量
 ```cpp
-// firstref.cpp
-#include <iostream>
-
+// secref.cpp 
+#include<iostream>
+using namespace std;
 int main()
 {
-    using namespace std;
     int rats = 101;
     int & rodents = rats;
+    
     cout << "rats = " << rats;
     cout << ", rodents = " << rodents << endl;
-
-    rodents++;
-    cout << "rats = " << rats;
-    cout << ", rodents = " << rodents << endl;
-
+    
     cout << "rats address = " << &rats;
     cout << ", rodents address = " << &rodents << endl;
-
+    
+    int bunnies = 50;
+    rodents = bunnies;
+    cout << "bunnies = " << bunnies;
+    cout << ", rats = " << rats;
+    cout << ", rodents = " << rodents << endl;
+    
+    cout << "bunnies address = " << & bunnies;
+    cout << ", rodents address = " << &rodents << endl;
+    
     return 0;
 }
 ```
+- 引用变量必须立刻绑定，共享同一地址
+- 可以改变引用变量的值，但是不能改变引用变量的绑定
 **引用变量必须在声明时进行初始化**
 ### 将引用用作函数参数
 传递引用和传递指针都可以改变变量的值
@@ -57,7 +64,7 @@ void swapp(int * a, int * b)
     *b = temp;
 }
 
-void swapv(int a, int b)        // swap failed, can't modify values1
+void swapv(int a, int b)        // swap failed, can't modify value 1
 {
     int temp;
     temp = a;
