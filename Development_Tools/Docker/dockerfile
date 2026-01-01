@@ -1,0 +1,57 @@
+# from ubuntu 20.04
+FROM ubuntu:20.04
+
+SHELL ["/bin/bash", "-c"]
+
+# Add apt sources
+RUN cp -a /etc/apt/sources.list /etc/apt/sources.list.bak \
+&& sed -i 's@//.*archive.ubuntu.com@//mirrors.ustc.edu.cn@g' /etc/apt/sources.list
+
+# install pack
+RUN export DEBIAN_FRONTEND=noninteractive \
+&& apt-get update \
+&& apt-get upgrade -y \
+&& apt-get install -y --no-install-recommends \
+wget curl rsync ca-certificates bc bison byobu cmake cpio debootstrap \
+device-tree-compiler dosfstools dpkg-dev exfat-utils fakeroot flex gcc kmod kpartx \
+language-pack-en language-pack-zh-hans git libssl-dev libxml2 libxml2-dev qemu-user \
+qemu-user-static rsync sudo u-boot-tools util-linux uuid uuid-dev lrzsz openssh-server \
+vim nano python3-dev python3-pip gdb g++ build-essential p7zip-full bsdmainutils \
+&& apt-get autoclean
+RUN python3 -m pip install --upgrade pip -i https://pypi.tuna.tsinghua.edu.cn/simple \
+&& python3 -m pip install setuptools --upgrade -i https://pypi.tuna.tsinghua.edu.cn/simple \
+&& python3 -m pip install setuptools_rust --upgrade -i https://pypi.tuna.tsinghua.edu.cn/simple \
+&& python3 -m pip install dfss --upgrade -i https://pypi.tuna.tsinghua.edu.cn/simple
+
+# set work dir
+WORKDIR /workspace
+
+# download build files
+RUN mkdir /env && pushd /env/ \
+&& python3 -m dfss --url=open@sophgo.com:/sophon-bsp/BSP_SDK.zip \
+&& 7z x BSP_SDK.zip \
+&& mv 'BSP SDK'/* ./ \
+&& rm -rf 'BSP SDK' \
+&& rm -rf BSP_SDK.zip \
+&& rm -rf memory_layout_modification_tool \
+#&& tar -xaf qt-5.14-amd64-aarch64-*.tar.xz \
+&& mkdir qt_fl2000 && pushd qt_fl2000 \
+&& python3 -m dfss --dflag=sophgo-bsp-qt5-fl2000fb-toolchain \
+#&& tar -xaf qt-5.14-amd64-aarch64-fl2000fb_*.tar.xz \
+&& popd \
+&& mkdir qt_ms9132 && pushd qt_ms9132 \
+&& python3 -m dfss --dflag=sophgo-bsp-qt5-ms9132-toolchain \
+&& tar -xaf qt-5.14-amd64-aarch64-*.tar.xz \
+&& popd \
+&& popd
+
+RUN ulimit -n 1024
+
+# add path
+ENV PATH "$PATH:/env/gcc-linaro-6.3.1-2017.05-x86_64_aarch64-linux-gnu/bin"
+
+# Set the locale
+RUN locale-gen en_US.UTF-8
+ENV LANG en_US.UTF-8
+ENV LANGUAGE en_US:en
+ENV LC_ALL en_US.UTF-8
