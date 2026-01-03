@@ -104,15 +104,17 @@ int main()
 ```cpp
 #include <iostream>
 #include <string>
+
+using namespace std;
 struct free_throws{
-    std::string name;
+    string name;
     int made;
     int attempts;
     float percent;
-}
+};
 
-void display(const free_throws & ft)
-void set_pc(free_throws & ft)
+void display(const free_throws & ft);
+void set_pc(free_throws & ft);
 free_throws & accumulate(free_throws & target, const free_throws & source);
 
 int main()
@@ -136,15 +138,15 @@ int main()
     display(team);
 
     dup = accumulate(team, five);
-    std::cout << "Displaying team:">> endl;
+    cout << "Displaying team:" << endl;
     display(team);
 
-    std::cout << "Displaying dup after assignment:">> endl;
+    cout << "Displaying dup after assignment:" << endl;
     display(dup);
     set_pc(four);
 
     accumulate(dup, five) = four;
-    std::cout << "Displaying dup after ill-advised assignment:">> endl;
+    std::cout << "Displaying dup after ill-advised assignment:" << endl;
     display(dup);
 
     return  0;
@@ -152,7 +154,6 @@ int main()
 
 void display(const free_throws & ft)
 {
-    using std::cout;
     cout    << "Name: " << ft.name << "\n";
     cout    << "Made: " << ft.made << "\n";
     cout    << "Attempts: " << ft.attempts << "\n";
@@ -174,5 +175,5 @@ free_throws & accumulate(free_throws & target, const free_throws & source)
     set_pc(target);
     return target;
 }
-
 ```
+ 
