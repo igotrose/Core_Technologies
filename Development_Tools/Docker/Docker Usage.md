@@ -146,6 +146,16 @@ Docker 是一个开源的应用容器引擎，可以轻松的为任何应用创�
         ```
     - `<repo>:<tag>`： 镜像名称和标签
     - `<command> <args>`： 运行命令
+    ```bash
+    # example
+    docker run -it --name bm1684x_v23_09 \
+    -v /home/ubuntu/workspace/Sophgo/bm1684/bm1684x_v23_09:/bm1684x_v23_09 \
+    -v /tmp/.X11-unix:/tmp/.X11-unix \
+    -e DISPLAY=$DISPLAY \
+    --network host \
+    --privileged \
+    sophon_bsp_build:v1 /bin/bash 
+    ```
 
 - 查看容器
     ```bash
