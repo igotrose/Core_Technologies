@@ -102,6 +102,7 @@ int main()
 ### 引用的属性和特别之处
 ### 将引用用于结构
 ```cpp
+// strc_ref.cpp
 #include <iostream>
 #include <string>
 
