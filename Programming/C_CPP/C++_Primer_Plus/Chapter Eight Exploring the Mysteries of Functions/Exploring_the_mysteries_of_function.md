@@ -177,4 +177,8 @@ free_throws & accumulate(free_throws & target, const free_throws & source)
     return target;
 }
 ```
- 
+### 将引用用于类对象
+将类对象传递给函数时，C++通常的做法是使用引用，例如，可以通过使用引用，让函数将类`string、ostream、istream、ofstream、ifstream`等类的对象作为参数
+### 对象、继承和引用
+`ostream`是基类，`ofstream`是派生类，由基类继承而来，这就意味着`ofstream`对象可以使用基类的特性    
+继承的另一个特征是，基类引用可以指向派生类对象，
