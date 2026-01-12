@@ -182,3 +182,275 @@ free_throws & accumulate(free_throws & target, const free_throws & source)
 ### 对象、继承和引用
 `ostream`是基类，`ofstream`是派生类，由基类继承而来，这就意味着`ofstream`对象可以使用基类的特性    
 继承的另一个特征是，基类引用可以指向派生类对象，
+```cpp
+// filefunc.cpp -- function with ostream & parameter
+#include <iostream>
+#include <fstream>
+#include <cstdlib>
+
+using namespace std;
+
+const int LIMIT = 5;
+// os 可以指向ostream对象，也可以指向ofstream对象
+void file_it(ostream & os, double fo, const double fe[], int n)
+{
+    // 是存储这种格式信息所需的数据类型的名称
+    ios_base::fmtflags initial;
+    // 将对象置于使用顶点表示法模式
+    initial = os.setf(ios_base::fixed);
+    // precision()指定显示多少位小数
+    os.precision(0);
+    os << "Focal length of objective: " << fo << "mm\n";
+    // 将对象置于显示小数点的模式，即使小数部分为零
+    os.setf(ios::showpoint);
+    os.precision(1);
+    os.width(12);
+    os << "f.l. eyepiece";
+    os.width(15);
+    os << "magnification" << endl;
+    for (int i = 0; i < n; i++)
+    {
+        os.width(12);
+        os << fe[i];
+        os.width(15);
+        os << int(fo / fe[i] + 0.5) << endl;
+    }
+    os.setf(initial);
+    // setf()返回调用它之前有效的所有格式化设置
+}
+
+int main()
+{
+    // 打开文件
+    ofstream fout;
+    const char * fn = "ep-data.txt";
+    fout.open(fn);
+    if (!fout.is_open())
+    {
+        cout << "Can't open " << fn << ". Bye.\n";
+        exit(EXIT_FAILURE);
+    }
+    double objective;
+    cout << "Enter the focal length of your "
+        "telescope objective in mm: ";
+    cin >> objective;
+    double eps[LIMIT];
+    cout << "Enter the focal lengths, in mm, of " << LIMIT << "eyepieces: \n";
+    for (int i = 0; i < LIMIT; i++)
+    {
+        cout << "Eyepiece #" << i + 1 << ": ";
+        cin >> eps[i];
+    }
+    // 输出到ep-data.txt
+    file_it(fout, objective, eps, LIMIT);
+    // 输出到终端
+    file_it(cout, objective, eps, LIMIT);
+    cout << "Done!\n";
+
+    return 0;
+}
+```
+每个对象都存储了自己的格式化设置
+### 合适使用引用参数
+使用引用参数的主要原因包括：能够修改调用函数中的数据对象和传递引用而不是整个数据对象，一些使用原则
+- 对于使用传递的值而不做修改的函数
+    - 如果数据对象很小，如内置数据类型或小型结构，则按值传递
+    - 如果数据对象是数组，则使用指针
+    - 如果数据对象是较大的结构，则使用 const 指针或 const 引用
+    - 如果数据对象是类对象，则使用 const 引用
+- 对于修改调用函数中数据的函数
+    - 如果数据对象是内置数据类型，则使用指针
+    - 如果数据对象是数组，则只能使用指针
+    - 如果数据对象是结构，则使用指针或引用
+    - 如果数据对象是类对象，则使用引用
+## 默认参数
+默认参数值得是当函数调用中省略了实参时自动使用的一个值，这个默认值需要通过函数原型去声明，但是对于待参数列表的函数，必须时从右往做添加默认值的
+```cpp
+// left.cpp
+#include <iostream>
+const int ArSize = 80;
+
+char * left(const char * str, int n = 1)
+{
+    if (n < 0) n = 0;
+    char * p = new char[n + 1];
+    int i;
+    for (i = 0; i < n && str[i]; i++)
+        p[i] = str[i];
+    while (i < n)
+        p[i++] = '\0';
+    p[n] = '\0';
+    return p;
+}
+
+int main()
+{
+    using namespace std;
+    char sample[ArSize];
+    cout << "Enter a string:\n";
+    cin.get(sample, ArSize);
+    char *ps = left(sample, 4);
+    cout << ps << endl;
+    delete [] ps;
+    ps = left(sample);
+    cout << ps << endl;
+    delete [] ps;
+    return 0;
+}
+```
+## 函数重载
+函数多台（重载）可以有多个同名的函数但是功能不一样，函数重载的关键是函数的参数列表 —— 也成为函数特征标，C++通过这个识别参数列表来确定调用什么函数，又有点类型引用和类型本身会被视作同一个特征标
+### 重载示例
+```cpp
+// leftover.cpp
+#include <iostream>
+const int ArSize = 80;
+
+char * left(const char * str, int n = 1)
+{
+    if (n < 0) n = 0;
+    char * p = new char[n + 1];
+    int i;
+    for (i = 0; i < n && str[i]; i++)
+        p[i] = str[i];
+    while (i < n)
+        p[i++] = '\0';
+    p[n] = '\0';
+    return p;
+}
+
+unsigned long left(unsigned long num, unsigned ct)
+{
+    unsigned digits = 1;
+    unsigned long n = num;
+
+    if(ct == 0 || num == 0)
+        return 0;
+    while (n /= 10)
+        digits++;
+    if (digits > ct)
+    {
+        ct = digits - ct;
+        while (ct--)
+            num /= 10;
+        return num;
+    }
+    else
+        return num;
+}
+
+int main()
+{
+    using namespace std;
+    const char * trip = "Hawaii!!";
+    unsigned long n = 12345678;
+    int i;
+    char * temp;
+
+    for (i = 1; i < 10; i++)
+    {
+        cout << left(n, i) << endl;
+        temp = left(trip, i);
+        cout << temp << endl;
+        delete [] temp;
+    }
+    return 0;
+}
+```
+### 合适使用函数重载
+## 函数模板
+函数模板就是通用的函数描述，他们使用泛型来定义函数，听过将类型作为参数传递给模板，可以使编译器生成该类型的函数，使用函数模板`template <typename AnyType>`，关键字和类型名字是必须的
+```cpp
+// funtemp.cpp
+#include <iostream>
+
+template <typename T>
+void Swap(T &a, T &b)
+{
+    T temp;
+    temp = a;
+    a = b;
+    b = temp;
+}
+
+int main()
+{
+    using namespace std;
+    int i = 10;
+    int j = 20;
+    cout << "i, j: " << i << ", " << j << endl;
+    cout << "Using compiler-generated int swapper:" << endl;
+    Swap(i, j);
+    cout << "Now i, j: " << i << ", " << j << endl;
+
+    double x = 24.5;
+    double y = 81.7;
+    cout << "x, y: " << x << ", " << y << endl;
+    cout << "Using compiler-generated double swapper:" << endl;
+    Swap(x, y);
+    cout << "Now x, y: " << x << ", " << y << endl;
+    return 0;
+}
+```
+### 重载的模板
+```cpp
+// twotemps.cpp
+#include <iostream>
+template <typename T>
+void Swap(T &a, T &b)
+{
+    T temp;
+    temp = a;
+    a = b;
+    b = temp;
+}
+void Swap(T *a, T *b, int n)
+{
+    T temp;
+    for (int i = 0; i < n; i++)
+    {
+        temp = a[i];
+        a[i] = b[i];
+        b[i] = temp;
+    }
+}
+
+void Show(int a[])
+{
+    using namespace std;
+    cout << a[0] << a[1] << "/";
+    cout << a[2] << a[3] << "/";
+    for (int i = 3; i < 5; i++)
+        cout << a[i] << " ";
+    cout << endl;
+}
+const int Lim = 8;
+int main()
+{
+    using namespace std;
+    int i = 10, j = 20;
+    cout << "i, j = " << " << i << ", " << j << endl";
+    cout << "Using compiler-generated int swapper:" << endl;
+    Swap(i, j);
+    cout << "Now i, j = " << i << ", " << j << endl;
+
+    int d1[Lim] = {0, 7, 0, 4, 1, 7, 7, 6};
+    int d2[Lim] = {0, 7, 2, 0, 1, 8, 9, 8};
+    cout << "Original arrays:" << endl;
+    Show(d1);
+    Show(d2);
+    Swap(d1, d2, Lim);
+    cout << "Swapped arrays:" << endl;
+    Show(d1);
+    Show(d2);
+    return 0;
+}
+
+```
+### 模板的局限性
+### 显示具体化
+### 实例化和具体化
+### 模板函数的发展
+## 总结
+## 复习题
+## 编程练习
