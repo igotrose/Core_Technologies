@@ -3,40 +3,44 @@
 ### 变量名
 ### 整型
 ### 整形short、int、long和longlong
-```cpp
-#include <iostream>
-#include <climits>
+1. 运算符`sizeof`和头文件`limits`
+    ```cpp
+    // limits.cpp
+    #include <iostream>
+    #include <climits>
 
-int main() 
-{
-    using namespace std;
-    int n_int = INT_MAX;
-    short n_short = SHRT_MAX;
-    long n_long = LONG_MAX;
-    long long n_longlong = LLONG_MAX;
+    int main() 
+    {
+        using namespace std;
+        int n_int = INT_MAX;
+        short n_short = SHRT_MAX;
+        long n_long = LONG_MAX;
+        long long n_longlong = LLONG_MAX;
 
-    cout << "int is " << sizeof(int) << " bytes.\n"; << endl;
-    cout << "short is " << sizeof(short) << " bytes.\n"; << endl;
-    cout << "long is " << sizeof(long) << " bytes.\n"; << endl;
-    cout << "long long is " << sizeof(long long) << " bytes.\n"; << endl;
-    
-    cout << "Maximum values:\n";
-    cout << "int: " << n_int << endl;
-    cout << "short: " << n_short << endl;
-    cout << "long: " << n_long << endl;
-    cout << "long long: " << n_longlong << endl;
+        cout << "int is " << sizeof(int) << " bytes." << endl;
+        cout << "short is " << sizeof(short) << " bytes." << endl;
+        cout << "long is " << sizeof(long) << " bytes." << endl;
+        cout << "long long is " << sizeof(long long) << " bytes." << endl;
+        
+        cout << "Maximum values:\n";
+        cout << "int: " << n_int << endl;
+        cout << "short: " << n_short << endl;
+        cout << "long: " << n_long << endl;
+        cout << "long long: " << n_longlong << endl;
 
-    cout << "Minimum values:\n";
-    cout << "int: " << INT_MIN << endl;
-    cout << "short: " << SHRT_MIN << endl;
-    cout << "long: " << LONG_MIN << endl;
-    cout << "long long: " << LLONG_MIN << endl;
+        cout << "Minimum values:\n";
+        cout << "int: " << INT_MIN << endl;
+        cout << "short: " << SHRT_MIN << endl;
+        cout << "long: " << LONG_MIN << endl;
+        cout << "long long: " << LLONG_MIN << endl;
 
-    cout << "Bits per byte = : " << CHAE_BIT << endl;
+        cout << "Bits per byte = : " << CHAR_BIT << endl;
 
-    return 0;
-}
-```
+        return 0;
+    }
+    ```
+2. 初始化，C++的一种初始化方法```int wrens(432);```
+3. 还有一种初始化方法，用于数组和结构，但在C++98中，也可用于单值变量```int hamburgers = {24};```
 ### 无符号类型
 ```cpp
 // exceed.cpp
@@ -50,8 +54,8 @@ int main()
     short sam = SHRT_MAX;
     unsigned short sue = sam;   
 
-    cout << "Sam has " << sam << "dollars and Sue has " << sue;
-    cout << " dollars deposited.\n" << endl << "Add $1 to each account." << endl << "Now ";
+    cout << "Sam has " << sam << " dollars and Sue has " << sue;
+    cout << " dollars deposited." << endl << "Add $1 to each account." << endl << "Now ";
     sam = sam + 1;
     sue = sue + 1;
     cout << "Sam has " << sam << " dollars and Sue has " << sue << " dollars deposited.\n";
@@ -69,6 +73,7 @@ int main()
 ```
 ### 选择整型类型
 ### 整型字面值
+`cout`默认情况下是以十进制输出
 ```cpp
 // hexoctl.cpp
 #include <iostream>
@@ -81,13 +86,14 @@ int main()
     int inseam = 042;
 
     cout << "Monsieur cuts a striking figure!\n";
-    cout << "Chest: " << chest << "{42 in decimal}\n"; 
-    cout << "Waist: " << waist << "{42 in hex}\n";
-    cout << "Inseam: " << inseam << "{42 in octal}\n";
+    cout << "Chest: " << chest << " {42 in decimal}\n"; 
+    cout << "Waist: " << waist << " {42 in hex}\n";
+    cout << "Inseam: " << inseam << " {42 in octal}\n";
 
     return 0;
 }
 ```
+使用`cout`显示其他进制输出，需要想`cout`指明
 ```cpp
 // hexoct2.cpp
 #include <iostream>
@@ -100,11 +106,11 @@ int main()
     int inseam = 42;
 
     cout << "Monsieur cuts a striking figure!\n";
-    cout << "Chest: " << chest << "{42 in decimal}\n"; 
+    cout << "Chest: " << chest << " {42 in decimal}\n"; 
     cout << hex;
-    cout << "Waist: " << waist << "{42 in hex}\n";
+    cout << "Waist: " << waist << " {42 in hex}\n";
     cout << oct;
-    cout << "Inseam: " << inseam << "{42 in octal}\n";
+    cout << "Inseam: " << inseam << " {42 in octal}\n";
 
     return 0;
 }
@@ -138,32 +144,155 @@ int main()
     i = ch;
     cout << "The ASCII code for " << ch << " is " << i << endl;
     cout << "Displaying char ch using a cast: " << endl;
-    cout << "The ASCII code for " << (char) ch << " is " << ch << endl;
+    cout << "The ASCII code for " << (char) ch << " is " << i;
+    cout.put(ch);
+    cout.put('!');
     cout << "Done" << endl;
     return 0;
 }
 ```
+1. 程序说明
+2. 成员函数`cout.put()`
+3. `char`字面值
+4. 转义字符
+    ```cpp
+    // bondini.cpp
+    #include <iostream>
+    int main() 
+    {
+        using namespace std;
+        cout << "\aOperation \"HyperHype\" is now activated!\n";
+        cout << "Enter your agent code:_____\b\b\b\b\b\b";
+        long code;
+        cin >> code;
+        cout << "\aYou entered " << code << "...\n";
+        cout << "\aCode verified! Proceed with Plan Z3!\n";
+        return 0;
+    }
+    ```
+5. 通用字符名
+6. signed char 和 unsigned char，注意数值类型的范围
+7. wcha_t
 成员函数描述了操纵类数据的方法
 ### bool类型
 ## const限定符
+创建常量的通用格式如下
+```cpp
+const type name = value;
+```
 ## 浮点数
 ### 书写浮点数
 ### 浮点类型
 ### 浮点常量
+```cpp
+// floatnum.cpp
+#include <iostream>
+int main()
+{
+    using namespace std;
+    cout.setf(ios_base::fixed, ios_base::floatfield);
+    float tub = 10.0 / 3.0;
+    double mint = 10.0 / 3.0;
+    const float million = 1.0e6;
+
+    cout << "tub = " << tub;
+    cout << ", a million tubs = " << million * tub;
+    cout << ",\nand ten million tubs =";
+    cout << 10 * million * tub << endl;
+    
+    cout << "mint = " << mint << " and a million mints = ";
+    cout << million * mint << endl;
+    return 0;
+}
+```
+1. 程序说明
+    通常`cout`会删除结尾的零
 ### 浮点数的优缺点
+```cpp
+// fltadd.cpp 
+#include <iostream>
+int main() 
+{
+    using namespace std;
+    float a = 2.34E+22f;
+    float b = a + 1.0f;
+
+    cout << "a = " << a << endl;
+    cout << "b - a = " << b - a << endl;
+    return  0;
+}
+```
 ## C++算术运算符
+```cpp
+// arith.cpp
+#include <iostream>
+int main()
+{
+    using namespace std;
+    float hats, heads;
+
+    cout.setf(ios_base::fixed, ios_base::floatfield);
+    cout << "Enter a number: ";
+    cin >> hats;
+    cout << "Enter another number: ";
+    cin >> heads;
+
+    cout << "hats = " << hats << "; heads = " << heads << endl;
+    cout << "hats + heads = " << hats + heads << endl;
+    cout << "hats - heads = " << hats - heads << endl;
+    cout << "hats * heads = " << hats * heads << endl;
+    cout << "hats / heads = " << hats / heads << endl;
+    return 0;
+}
+```
 ### 运算符优先级和结合性
 ### 除法分支
+如果两个操作数都是整数，则将执行整数除法，这就意味着结果的小数部分将被丢弃，但是如果操作数中有一个或者两个是浮点数，那么结果将保留小数部分
+```cpp
+// divide.cpp
+#include <iostream>
+int main() 
+{
+    using namespace std;
+    cout.setf(ios_base::fixed, ios_base::floatfield);
+    cout << "Integer division: 9/5 = " << 9 / 5 << endl;
+    cout << "Floating-point division: 9.0/5.0 = " << 9.0 / 5.0 << endl;
+
+
+    cout << "Mixed division: 9.0/5 = " << 9.0 / 5 << endl;
+    cout << "double constants: 1e7/9.0 = " << 1e7 / 9.0 << endl;
+    cout << "float constants: 1e7f/9.0f = " << 1e7f / 9.0f << endl;
+    return 0;
+}
+```
 ### 求模运算符
+```cpp
+// modulus.cpp
+#include <iostream>
+int main() 
+{
+    using namespace std;
+    const int Lbs_per_stn = 14;
+    int lbs;
+
+    cout << "Enter your weight in pounds: ";
+    cin >> lbs;
+    int stone = lbs / Lbs_per_stn;
+    int pounds = lbs % Lbs_per_stn;
+    cout << lbs << " pounds are " << stone << " stone, " << pounds << " pounds.\n";
+
+    return 0;
+}
+```
 ### 类型转换
-1. 初始化和复制进行转换
+1. 初始化和赋值进行转换
     ```cpp
     // assign.cpp
     #include <iostream>
-
     int main() 
     {
         using namespace std;
+        cout.setf(ios_base::fixed, ios_base::floatfield);
         float tree = 3;
         int guess{3.9832};
         int debt = 7.2E12;
@@ -172,10 +301,6 @@ int main()
         cout << "debt = " << debt << endl;
         return 0;
     }
-
-    tree = 3.000000
-    guess = 3
-    debt = 1634811904
     ```
 2. 以`{}`方式初始化时进行的转换
     在C++11之后，将使用大括号的初始化称为列表初始化，列表初始化不允许窄化转换，简单理解就是不允许把大盒子的东西往小盒子塞，可能会塞不下或丢东西
