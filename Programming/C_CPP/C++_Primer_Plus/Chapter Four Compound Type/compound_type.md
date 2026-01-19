@@ -1,5 +1,10 @@
 # 复合类型
 ## 数组
+数组声明应当指出一下三点：
+1. 存储在每个元素中的值的类型
+2. 数组名
+3. 数组中的元素数
+
 ```cpp
 // arrayone.cpp
 #include <iostream>
@@ -24,10 +29,16 @@ int main()
 } 
 ```
 ### 程序说明
+`sizeof`用于数组名，得到的将是整个数组中的字节数；`sizeof`用于数组中的元素，得到的是该元素所占的字节数
 ### 数组的初始化规则
 ### C++11数组初始化方法
 ## 字符串
+字符串是存储在内存的连续字节中的一系列字符，字符串常量用双引号表示，字符常量用单引号表示
 ### 拼接字符串常量
+有时候字符串很长，无法放到一行中，C++允许拼接字符串字面值，即将两个用引号括起的字符串合并为一个，中间不会自动加空格，只保留一个结尾的 `\0` 比如
+```cpp
+cout << "I'd give my right arm to be" " a great violionist.\n";  
+```
 ### 在数组中使用字符串
 ```cpp
 // string.cpp
@@ -45,7 +56,7 @@ int main()
     cout << "! What's your name?\n";
     cin >> name1;
     cout << "Well, " << name1 << ", your name has " << strlen(name1) << " letters and is stored\n";
-    coutt << "in an array of " << sizeof(name1) << " bytes.\n";
+    cout << "in an array of " << sizeof(name1) << " bytes.\n";
     cout << "Your initial is " << name1[0] << ".\n";
     name2[3] = '\0';
     cout << "Here are the first 3 characters of my name: ";
@@ -68,7 +79,7 @@ int main()
 
     cout << "Enter your name: ";
     cin >> name;
-    cout << "Enter your favorite dessert: ";
+    cout << "Enter your favorite dessert: \n";
     cin >> dessert;
     cout << "I have some delicius " << dessert;
     cout << " for you, " << name << ".\n";
@@ -76,6 +87,7 @@ int main()
     return 0;
 }
 ```
+`cin`通过使用空白字符（空格、制表符和换行符）来确定字符串的结束位置，在上例中，假设输入有空格，那么空格前的字符会被读取，但是读取完之后会自动在结尾添加空字符，并把后面的输入放当下一个数组
 ### 每次读取一行字符串输入
 1. 面向行的输入：`getline()`，使用通过回车键输入的换行符来确定输入结尾，使用`cin.getline()`，该函数有两个参数，第一个参数为输入的字符串，第二个参数为字符串的长度
     ```cpp
@@ -88,9 +100,9 @@ int main()
         char name[ArSize];
         char dessert[ArSize];
 
-        cout << "Enter your name: "
+        cout << "Enter your name: ";
         cin.getline(name, ArSize);
-        cout << "Enter your favorite dessert: "
+        cout << "Enter your favorite dessert: ";
         cin.getline(dessert, ArSize);
         cout << "I have some delicius " << dessert;
         cout << " for you, " << name << "." << endl;
@@ -121,6 +133,13 @@ int main()
     ```
 
 3. 空行和其他问题
+4. 三种输入方式总结
+    |输入方式|结束标志|会不会读取换行符|
+    |:-----:|:------:|:------------:| 
+    |`cin >> x`|空格/回车/EOF|不读|
+    |`cin.getline()`|回车/EOF|不读|
+    |`cin.get()`|读到指定字符|会读|
+
 ### 混合输入字符串和数字
 ```cpp
 // numstr.cpp
@@ -131,7 +150,7 @@ int main()
     using namespace std;
     cout << "What year was your house build?\n";
     int year;
-    cin >> year;
+    (cin >> year).get();
     cout << "Year built: " << year << endl;
     cout << "What is its street address?\n";
     char address[80];
@@ -141,6 +160,7 @@ int main()
     return 0;
 }
 ```
+`cin`读取年份，将会车键生成的换行符留在的输入队列中，后面的`cin.getline()`看到换行符后将起人做空行并赋值给`address`数组，解决方法是在读取地址之前先读取并丢弃换行符
 ## string 类简介
 ISO/ANSI C++标准通过他添加string类扩展了C++库，因此心啊在可以string类型的变量而不是字符数组来存储字符串，使用string类，必须包含string头文件，string类位于名称空间std中，所以必须使用std::string来声明string变量或者提供using声明。
 ```cpp
@@ -155,7 +175,7 @@ int main()
     string str1;
     string str2 = "panther";
  
-    cout << "Enter a kind of feline: "
+    cout << "Enter a kind of feline: ";
     cin >> charr1;
     cout << "Enter another kind of feline: ";
     cin >> str1;
