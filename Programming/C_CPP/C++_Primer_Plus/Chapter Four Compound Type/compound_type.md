@@ -187,7 +187,12 @@ int main()
     return 0;
 }
 ```
-类设计让程序能够自动处理string的大小
+1. 可以使用C风格字符串来初始化 string 对象
+2. 可以使用 `cin` 来讲键盘输入存储到 string 对象
+3. 可以使用 `cout` 来显示 string 对象
+4. 可以使用数组表示法来的访问存储在 string 对象中的字符
+
+类设计让程序能够自动处理 string 的大小
 ### C++11字符串初始化
 ### 赋值、拼接和附加
 ```cpp
@@ -239,7 +244,7 @@ int main()
     strcpy(charr1, charr2);
 
     str1 += " paste";
-    strcpy(charr1, " juice");
+    strcat(charr1, " juice");
 
     int len1 = str1.size();
     int len2 = strlen(charr1);
@@ -265,7 +270,7 @@ int main()
     cout << "Length of string in charr before input: " << strlen(charr) << endl;
     cout << "Length of string in str before input: " << str.size() << endl;
     cout << "Enter a string: ";
-    cin, getline(charr, 20);
+    cin.getline(charr, 20);
     cout << "You entered: " << charr << endl;
     cout << "Enter another string: ";
     getline(cin, str);
@@ -277,10 +282,80 @@ int main()
 ```
 ### 其他形式的字符串字面值
 ## 结构简介
+结构是用户定义的类型，结构声明定义了这种类型的数据属性，定义结构描述并标记了能够在结构中的各种数据类型，然后按描述创建结构变量
 ### 在程序中使用结构
+```cpp
+// structur.cpp 
+#include <iostream>
+struct inflatable
+{
+    char name[20];
+    float volume;
+    double price;
+};
+
+int main()
+{
+    using namespace std;
+    inflatable guest = {"Glorious Gloria", 1.88, 29.99};
+    inflatable pal = {"Bambi", 0.5, 21.99};
+
+    cout << "Expand your guest list with " << guest.name << " and " << pal.name << ".\n";
+    cout << "You can have both for $" << guest.price + pal.price << "!\n";
+
+    return 0;
+}
+
+```
 ### C++11接口初始化
+### 结构可以将 string 类作为成员
 ### 其他结构属性
+```cpp
+// assgn_st.cpp
+#include <iostream>
+struct inflatable
+{
+    char name[20];
+    float volume;
+    double price;
+};
+
+int main()
+{
+    using namespace std;
+    inflatable bouquet = {"sunflowers", 0.20, 12.49};
+    inflatable choice;
+    cout << "bouquet: " << bouquet.name << " for $" << bouquet.price << endl;
+    
+    choice = bouquet;
+    cout << "choice: " << choice.name << " for $" << choice.price << endl;
+    return 0;
+}
+```
 ### 结构数组
+```cpp
+// arrstruc.cpp
+#include <iostream>
+
+struct inflatable
+{
+    char name[20];
+    float volume;
+    double price;
+};
+
+int main()
+{
+    using namespace std;
+    inflatable guests[2] = 
+    {
+        {"Bambi", 0.5, 21.99},
+        {"Godiva", 0.3, 32.99}
+    };
+    cout << " guests[0] = " << guests[0].name << " for $" << guests[0].price << endl;
+    return 0;
+}
+```
 ### 结构中的位字段
 与C一样，C++也允许指定占用特定位数的结构成员，这是的创建与某个硬件设备上的寄存器对应的数据结构非常方便。字段的类型应为整型或者枚举，接下来是冒号，冒号后面跟着数字，他指定了使用的位数
 ```cpp
@@ -294,6 +369,7 @@ struct torgle_regiester
 torgle_regiester tr = {14, true, false};
 ```
 ## 共用体
+多个变量使用同一个存储空间，存储大小是最大的变量所占空间
 ## 枚举
 ### 设置枚举量的值
 ## 指针和自由存储空间
@@ -329,7 +405,7 @@ int main()
     cout << "location of pointer pd: " << &pd << endl;
     cout << "size of pt = " << sizeof(pt) << ": size of *pt = " << sizeof(*pt) << endl;
     cout << "size of pd = " << sizeof(pd) << ": size of *pd = " << sizeof(*pd) << endl;
-return 0;
+    return 0;
 }
 ```
 ### 使用delete来释放内存
