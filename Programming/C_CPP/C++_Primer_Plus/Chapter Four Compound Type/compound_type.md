@@ -373,8 +373,57 @@ torgle_regiester tr = {14, true, false};
 ## 枚举
 ### 设置枚举量的值
 ## 指针和自由存储空间
+```cpp
+// address.cpp
+#include <iostream>
+
+int main()
+{
+    using namespace std;
+    int donuts = 6;
+    double cups = 4.5;
+
+    cout << "donuts value = " << donuts << " adn donuts address = " << &donuts << endl;
+    cout << "cups value = " << cups << " adn cups address = " << &cups << endl;
+
+    return 0;
+}
+```
+指针用于存储值的地址，指针名表示的是地址，`*`运算符被称为解引用操作符，将其应用于指针，可以得到该地址处存储的值
+```cpp
+// pointer.cpp
+#include <iostream>
+int main()
+{
+    using namespace std;
+    int updates = 6;
+    int * p_updates = &updates;
+
+    cout << "Value: updates = " << updates << ": *p_updates = " << *p_updates << endl;
+    cout << "Address: &updates = " << &updates << ": p_updates = " << p_updates << endl;
+    *p_updates = *p_updates + 1;
+    cout << "Now updates = " << updates << endl;
+    return 0;
+}
+```
 ### 声明和初始化指针
+通常在32位机器上，指针变量的大小为4字节，在64位机器上为8字节
+```cpp
+// init_ptr.cpp
+#include <iostream>
+int main()
+{
+    using namespace std;
+    int higgens = 5;
+    int * pt = &higgens;
+
+    cout << "Value: higgens = " << higgens << ": *pt = " << *pt << endl;
+    cout << "Address: &higgens = " << &higgens << ": pt = " << pt << endl;
+    return 0;
+}
+```
 ### 指针的危险
+一定要在对指针应用解引用之前，将指针初始化位一个确定的适当的地址 
 ### 指针和数字
 ### 使用new来分配内存
 在C中，可以使用库函数`malloc()`来分配内存，在C++中也可这么做，但是C++提供了`new`运算符，对于一个数据对象，获得并指定分配内存的通用格式如下
@@ -390,7 +439,7 @@ int main()
 {
     using namespace std;
     int nights = 1001;
-    int  * pt = new int;
+    int * pt = new int;
     *pt = 1001;
 
     cout << "nights value = ";
@@ -398,7 +447,7 @@ int main()
     cout << "int ";
     cout << "valuee= " << *pt << ": location = " << pt << endl;
     double * pd = new double;
-    *pdd = 10000001.0;
+    *pd = 10000001.0;
 
     cout << "double ";
     cout << "valuee= " << *pd << ": location = " << pd << endl;
@@ -417,10 +466,15 @@ int main()
     int * psome = new int [10];
     delete [] psome;
     ```
-    如果使用`new`的时候，不带方括号，则使用`delete`时也不应该带方括号，因为`new`返回的是指向数组的指针，而不是数组本身；如果使用`new`创建动态数组，那么`delete`时，应该使用`delete []`，为数组分配内存的通用格式如下
+    `[]` 告诉是程序应当释放整个数组，如果使用`new`的时候，不带方括号，则使用`delete`时也不应该带方括号，因为`new`返回的是指向数组的指针，而不是数组本身；如果使用`new`创建动态数组，那么`delete`时，应该使用`delete []`，为数组分配内存的通用格式如下
     ```cpp
     typeName * pointer_name = new typeName [arraySize];
     ```
+    使用`new`和`delete`应当注意以下几点
+    - 不要使用`delete`来释放不是`new`分配的内存
+    - 不要使用`delete`来释放同一个内存块两次
+    - 如果使用`new []`为数组分配内存，则应使用`delete []`来释放
+    - 对空指针使用`delete`是安全的
 2. 使用动态数组
     ```cpp
     // arraynew.cpp
@@ -436,21 +490,175 @@ int main()
         cout << "p3[1] = " << p3[1] << endl;
         p3 = p3 + 1;
         cout << "Now p3[0] is " << p3[0] << endl;
-        cout << "p3[1] is" << p3[1] << endl;
+        cout << "p3[1] is " << p3[1] << endl;
         p3 = p3 - 1;;
         delete [] p3;
         return 0;
     } 
     ```
 ## 指针、数组和指针算术
+指针和数组基本等价的原因在于指针算术和C++内部处理数组的方式
+```cpp
+// addpntrs.cpp
+#include <iostream>
+int main()
+{
+    using namespace std;
+    double wages[3] = {10000.0, 20000.0, 30000.0};
+    short stacks[3] = {3, 2, 1};
+
+    double * pw = wages;
+    short * ps = &stacks[0];
+    cout << "pw = " << pw << ": *pw = " << *pw << endl;
+    pw = pw + 1;
+    cout << "add 1 to the pw pointer: " << endl;
+    cout << "pw = " << pw << ": *pw = " << *pw << endl;
+    cout << "ps = " << ps << ": *ps = " << *ps << endl;
+    ps = ps + 1;
+    cout << "add 1 to the ps pointer: " << endl;
+    cout << "ps = " << ps << ": *ps = " << *ps << endl;
+
+    cout << "access two elements with array notation\n";
+    cout << "stacks[0] = " << stacks[0] << ", stacks[1] = " << stacks[1] << endl;
+    cout << "access two elements with pointer notation\n";
+    cout << "*stacks = " << *stacks << ", *(stacks + 1) = " << *(stacks + 1) << endl;
+
+    cout << sizeof(wages) << " = size of wages array" << endl;
+    cout << sizeof(pw) << " = size of pw pointer" << endl;
+    return  0;
+}
+```
+### 程序说明
 ### 指针小结
+1. 声明指针
+2. 给指针赋值
+3. 对指针解引用
+4. 区分指针和指针指向的值
+5. 数组名
+6. 指针算术
+7. 数组的动态联编和静态联编
+8. 数组表示法和指针表示法
 ### 指针和字符串
+```cpp
+// ptrstr.cpp
+#include <iostream>
+#include <cstring>
+int main()
+{
+    using namespace std;
+    char animal[20] = "bear";
+    const char * bird = "wren";
+    char * ps;
+
+    cout << animal << " and " << bird << "\n";
+
+    cout << "Enter a kind of animal: ";
+    cin >> animal;
+
+    ps = animal;
+    cout << ps << "!\n";
+    cout << "Before using strcpy():\n";
+    cout << animal << " at " << (int *) animal << endl;
+    cout << ps << " at " << (int *) ps << endl;
+
+    ps = new char[strlen(animal) + 1];
+    strcpy(ps, animal);
+    cout << "After using strcpy():\n";
+    cout << animal << " at " << (int *) animal << endl;
+    cout << ps << " at " << (int *) ps << endl;
+    delete [] ps;
+    return 0;
+}
+```
+一般来说，如果给`cout`提供一个指针，他将打印地址，当如果指针类型为`char *`则输出指向的字符串，如果要显示的字符串的地址，则必须将这种指针强转为另一种指针类型
 ### 使用new创建动态结构
+```cpp
+// newstrct.cpp
+#include <iostream>
+
+struct inflatable
+{
+    char name[20];
+    float volume;
+    double price;
+};
+
+int main()
+{
+    using namespace std;
+    inflatable * ps = new inflatable;
+    cout << "Enter name of inflatable item: ";
+    cin.get(ps->name, 20);
+    cout << "Enter volume in cubic feet: ";
+    cin >> ps->volume;
+    cout << "Enter price: $";  
+    cin >> ps->price;
+    cout << "Name: " << (ps->name) << endl;
+    cout << "volume: " << ps->volume << endl;
+    cout << "price: $" << ps->price << endl;
+    delete ps;
+    return 0;
+}
+```
+1. 一个使用`new`和`delete`的示例
+    ```cpp
+    // delete.cpp
+    #include <iostream>
+    #include <cstring>
+    using namespace std;
+    char * getname()
+    {
+        char temp[80];
+        cout << "Enter last name: ";
+        cin >> temp;
+        char * pn = new char[strlen(temp) + 1];
+        strcpy(pn, temp);
+        return pn;
+    }
+    int main()
+    {
+        char * name = getname();
+        cout << name << " at " << (int *) name << endl;
+        delete [] name;
+
+        name = getname();
+        cout << name << " at " << (int *) name << endl;
+        delete [] name;
+        return 0;
+    }
+    ```
 ### 自动存储、静态存储和动态存储
 1. 自动存储，在程序块内声明的变量，其生命周期和程序块相同，在程序块结束时自动销毁，生命周期由编译器管理，不需要程序员手动释放内存，一般用于局部变量，如`int x = 10;`
-2. 静态存储，在程序块外声明的变量，其生命周期和程序块相同，在程序块结束时自动销毁，生命周期由编译器管理，不需要程序员手动释放内存，一般用于全局变量，如`static int x = 10;`
+2. 静态存储，在程序块外声明的变量，其生命周期和整个程序相同，在程序结束时自动销毁，生命周期由编译器管理，不需要程序员手动释放内存，一般用于全局变量，如`static int x = 10;`
 3. 动态存储，在程序块外声明的变量，其生命周期和程序块相同，在程序块结束时需要手动释放内存，一般用于动态分配内存，如`int * p = new int;`
 ### 类型组合
+```cpp
+// mixtypes.cpp
+#include <iostream>
+
+struct antarctica_year_end
+{
+    int year;
+};
+
+int main()
+{
+    antarctica_year_end s01, s02, s03;
+    s01.year = 1998;
+    antarctica_year_end * pa = &s02;
+    pa->year = 1999;
+    antarctica_year_end trio[3];
+    trio[0].year = 2003;
+    std::cout << trio->year << std::endl;
+    const antarctica_year_end * arp[3] = {&s01, &s02, &s03};
+    std::cout << arp[1]->year << std::endl;
+    const antarctica_year_end ** ppa = arp;
+    auto ppb = arp;
+    std::cout << (*ppa)->year << std::endl;
+    std::cout << (*(ppa + 1))->year << std::endl;
+    return 0;
+}
+```
 ## 数组的替代品
 ### 模板类vector
 1. 首先使用`vector`对象，必须包含头文件`vector`
