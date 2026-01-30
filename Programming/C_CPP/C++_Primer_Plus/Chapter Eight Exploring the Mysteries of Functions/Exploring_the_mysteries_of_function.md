@@ -3,8 +3,27 @@
 内联函数的编译代码与其他程序代码内联起来了，也就是说，编译器将使用相应的函数代码替换函数调用；对于内联代码，程序无需跳到另一个位置处执行代码，再跳回来，在小而简单、频繁调用的函数适当使用内联的特性可以提高程序性能，使用内联特性必须采取下述措施之一
 - 在函数声明前加上关键字`inline`
 - 在函数定义前加上关键字`inline`
+```cpp
+// inline.cpp
+#include<iostream>
+
+inline double square(double x)
+{
+    return x * x;
+}
+
+int main()
+{
+    using namespace std;
+    double a, b;
+    double x = 5;
+    a = square(5.0);
+    cout << a << endl;
+    return  0;
+}
+```
 ## 引用变量
-C++新增一种复合类型——引用变量，引用是已定义的变量的别名，有以下特性
+C++新增一种复合类型——引用变量，**引用是已定义的变量的别名**，有以下特性
 - 必须初始化
 - 名称不能改变
 - 可以直接访问变量的值
@@ -13,11 +32,11 @@ C++新增一种复合类型——引用变量，引用是已定义的变量的�
 ### 创建引用变量
 C和C++使用`&`符号来知识变量的地址，C++赋予了`&`符号一个特殊的功能，即创建引用变量
 ```cpp
-// secref.cpp 
 #include<iostream>
 using namespace std;
 int main()
-{
+{ 
+    // firstref.cpp
     int rats = 101;
     int & rodents = rats;
     
@@ -26,7 +45,7 @@ int main()
     
     cout << "rats address = " << &rats;
     cout << ", rodents address = " << &rodents << endl;
-    
+    // secref.cpp 
     int bunnies = 50;
     rodents = bunnies;
     cout << "bunnies = " << bunnies;
@@ -100,6 +119,33 @@ int main()
 }
 ```
 ### 引用的属性和特别之处
+```cpp
+// cubes.cpp
+#include <iostream>
+
+double cube(double a)
+{
+    a *= a * a;
+    return a;
+}
+
+double refcube(double & a)
+{
+    a *= a * a;     
+    return a;
+}
+
+int main()
+{
+    using namespace std;  
+    double x = 3.0;
+    cout << cube(x) << " = cube of " << x << endl;
+    cout << refcube(x) << " = refcube of " << x << endl;
+    return 0;
+}
+```
+这里设计到左值和右值的概念，有名字/可取地址的多是左值；临时算出来的多是右值  
+
 ### 将引用用于结构
 ```cpp
 // strc_ref.cpp
