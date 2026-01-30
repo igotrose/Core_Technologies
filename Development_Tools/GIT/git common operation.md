@@ -158,7 +158,7 @@ git clone git@github.com:username/repository.git folder-name
 # 克隆特定分支的指定目录
 git clone -b branch-name git@github.com:username/repository.git folder-name
 ```
-* 克隆远程仓库 --- https#
+* 克隆远程仓库 --- https方式
 ``` bash
 # 克隆整个仓库
 git clone https://github.com/username/repository.git
@@ -168,6 +168,10 @@ git clone -b branch-name https://github.com/username/repository.git
 git clone https://github.com/username/repository.git folder-name
 # 克隆特定分支的指定目录
 git clone -b branch-name https://github.com/username/repository.git folder-name
+```
+* 获取远程仓库所有分支
+```bash
+git fetch --all
 ```
 ## 大文件推送拉取
 GitHub有一个限制，不能上传超过100M的文件。如果要上传超过100M的文件，需要使用Git LFS（Large File Storage），但是单文件也不能超过2G
