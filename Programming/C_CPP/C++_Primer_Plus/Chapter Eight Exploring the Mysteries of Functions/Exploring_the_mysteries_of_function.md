@@ -172,7 +172,7 @@ int main()
     free_throws four = {"Lucky Luciano",7,9};
     free_throws five = {"Injured Miss Moose",6,7};
     free_throws team = {"Throwgoods",0,0};
-
+ 
     free_throws dup;
 
     set_pc(one);
@@ -287,7 +287,7 @@ int main()
         cout << "Eyepiece #" << i + 1 << ": ";
         cin >> eps[i];
     }
-    // 输出到ep-data.txt
+    // 输出到ep-data.txt，基类的引用可以指向派生类
     file_it(fout, objective, eps, LIMIT);
     // 输出到终端
     file_it(cout, objective, eps, LIMIT);
@@ -310,7 +310,7 @@ int main()
     - 如果数据对象是结构，则使用指针或引用
     - 如果数据对象是类对象，则使用引用
 ## 默认参数
-默认参数值得是当函数调用中省略了实参时自动使用的一个值，这个默认值需要通过函数原型去声明，但是对于待参数列表的函数，必须时从右往做添加默认值的
+默认参数值得是当函数调用中省略了实参时自动使用的一个值，**这个默认值需要通过函数原型去声明**，但是对于待参数列表的函数，必须是**从右往左添加默认值** 
 ```cpp
 // left.cpp
 #include <iostream>
@@ -405,11 +405,11 @@ int main()
 ```
 ### 合适使用函数重载
 ## 函数模板
-函数模板就是通用的函数描述，他们使用泛型来定义函数，听过将类型作为参数传递给模板，可以使编译器生成该类型的函数，使用函数模板`template <typename AnyType>`，关键字和类型名字是必须的
+函数模板就是通用的函数描述，他们使用泛型来定义函数，听过将类型作为参数传递给模板，可以使编译器生成该类型的函数，使用函数模板`template <typename AnyType>`，关键字 `template` 和类型名字 `typename` 是必须的，必须使用尖括号 `<>`，模板只是规定了编译器应该怎么做，在由编译器去生成具体的函数定义
 ```cpp
-// funtemp.cpp
-#include <iostream>
-
+// funtemp.cpp -- using a function template
+#include <iostream> 
+// function template prototype
 template <typename T>
 void Swap(T &a, T &b)
 {
@@ -439,18 +439,19 @@ int main()
 }
 ```
 ### 重载的模板
+需要多个对不同类型使用同一种算法的函数时，可以使用模板，但是并非所有的类型都使用相同的算法，为了满足这种需求，就可以想使用重载常规函数定义一样使用重载模板定义；和常规重载一样，被重载的模板的函数特征标（参数列表）必须不同
 ```cpp
-// twotemps.cpp
+// twotemps.cpp -- using overloaded template functions
 #include <iostream>
-template <typename T>
-void Swap(T &a, T &b)
+template <typename T>   
+void Swap(T &a, T &b)       // original template
 {
     T temp;
     temp = a;
     a = b;
     b = temp;
 }
-void Swap(T *a, T *b, int n)
+void Swap(T *a, T *b, int n)    // new template
 {
     T temp;
     for (int i = 0; i < n; i++)
@@ -494,12 +495,26 @@ int main()
 
 ```
 ### 模板的局限性
-### 显示具体化
-- 对于给定的函数名，可以有非模板函数、模板函数和显式具体化模板函数以及他们的重载版本
-- 显示具体化的原型和定义应以`template<>`开头，并通过名称来指出类型
-- 具体化优先于常规模板，而非模板函数优先于具体化和常规模板
+编写的模板函数很可能无法处理某些类型，比如不同类型之间的处理，对于这种局限性，有两种解决方法，一是重载运算符，而是显式具体化，即为特定类型提供具体化的模板定义
+### 显式具体化
+假设下面提供一个 `job` 结构体，如果用原来的模板，那么大概率是交换两个结构，如果想要单独交换里面的成员则需要使用不同的代码，但是函数的参数保持不变，所以不能使用模板重载来提供具体代码，但是可以提供一个具体化函数定义，其中包含所需的代码，当编译器找到与函数调用匹配的具体化定义，将使用该定义，而不再寻找模板，下面是C++标准定义的形式
+1. 对于给定的函数名，可以有非模板函数、模板函数和具体化模板函数以及它们的重载版本
+2. 显式具体化的原型和定义应以 `tempalte<>` 打头，并通过名称来指出类型
+3. 具体化优先于常规模板，而非模板函数优先于具体化和常规模板
+
+下面是用于交换 `job` 结构的非模板函数、模板函数和具体化模板函数
 ```cpp
-// twoswap.cpp
+// non template function prototype
+void swap(job &j1, job &j2);
+// template function prototype
+template <typename T>
+void Swap(T &a, T &b);
+// explicitly specialized template function definition
+template <> void Swap<job>(job &j1, job &j2)
+```
+这里注意 `Swap<job>` 中的 `<job>` 是可选的，因为函数的参数类型表明，这是 `<job>` 的一个具体化
+```cpp
+// twoswap.cpp -- specialization overrides a template
 #include <iostream>
 
 struct job
@@ -517,7 +532,7 @@ void Swap(T &a, T &b)
     a = b;
     b = temp;
 }
-
+// explicit specialization
 template <> void Swap(job &j1, job &j2)
 {
     double t1;
@@ -560,24 +575,104 @@ int main()
 }
 ```
 ### 实例化和具体化
-模板只是生成函数定义的方案，本身不会生成函数定义
-- 隐式实例化
-    ```
-    int i, j;
-    swap(i, j);
-    ```
-    - 调用swap，参数类型是int
-    - 推导出函数模板的参数类型是int
-    - 匹配的函数模板是swap<int>(T &a, T &b) 
+模板只是生成函数定义的方案，本身不会生成函数定义，编译器使用模板为特定类型生成函数定义时，得到的是模板实例；比如在下面程序中，函数调用 `Swap(i, j)` 导致编译器生成 `Swap()`的一个示例，该实例使用 `int` 类型，模板并非函数定义，但是使用 `int` 的模板实例是函数定义，这种被称之为**隐式实例化**，但是现在C++还允许**显式实例化**，用 `<>` 符号指定类型，并在声明前加上关键字 `template`，格式如下
+```
+template void Swap<int>(int, int)
+```
+### 区别一下
+```cpp
+template <typename T>
+void Swap(T& a, T& b) { /* 主模板 */ }
+
+template <>
+void Swap(job& a, job& b) { /* job 特化 */ }
+
+// 显式实例化
+template void Swap<int>(int&, int&);
+template void Swap<job>(job&, job&);
+
+```
+
+- Swap(ia, ib) → 没特化 → 用主模板实例（T=int）
+- Swap(ja, jb) → 有 job 特化 → 用特化版本 
+- template void Swap<job>(job&, job&); → 生成的是特化版本，不是主模板 
 ### 编译器选择使用哪个函数版本
 重载解析是指编译器在多个同名函数/模板中，选出一个最合适的的规则过程
 1. 创建候选函数列表
 2. 使用候选函数列表创建可行函数列表
 3. 确定是否有最佳的可行函数
+
+对于重载解析寻找最匹配的函数，有完全匹配和最佳匹配以及部分排序规则；
+- 完全匹配和最佳匹配
+    进行完全匹配时，C++允许某些无关紧要的转换，如下表
+    |从实参|从形参|
+    |:----:|:----:|
+    | Type | Type & |
+    | Type & | Type |
+    | Type []| *Type | 
+    | Type (argument-list) | Type (*)(argument-list)|
+    | Type | const Type |
+    | Type | volatile Type |
+    | Type* | const Type |
+    | Type* | volatile Type * |
+- 部分排序规则
+    ```cpp
+    // tempover.cpp -- template overloading
+    #include <iostream>
+
+    using namespace std;
+    template <typename T>
+    void ShowArray(T arr[], int n)
+    {
+        cout << "template A \n";
+        for (int i = 0; i < n; i++)
+            cout << arr[i] << " ";
+        cout << endl;
+    }
+
+    template <typename T>
+    void ShowArray(T * arr[], int n)
+    {
+        cout << "template B \n";
+        for (int i = 0; i < n; i++)
+            cout << *arr[i] << " ";
+        cout << endl;
+    }
+
+    struct debts
+    {
+        char name[50];
+        double amount;
+    };
+
+    int main()
+    {
+        int things[6] = {13, 31, 103, 301, 310, 130};
+        struct debts mr_E[3] =
+        {
+            {"Ima Wolfe", 2400.0},
+            {"Curly CM", 1300.0},
+            {"Lucy Write", 1900.0}
+        };
+        double * pd[3];
+
+        for (int i = 0; i < 3; i++)
+            pd[i] = &mr_E[i].amount;
+        cout << "Listing Mr. E's debt:\n";
+        ShowArray(things, 6);
+        cout << "Listing Mr. E's array:\n";
+        ShowArray(pd, 3);
+        return 0;
+    }
+    ```
+
+重载解析将寻找最匹配的函数
+- 如果只存在一个这样的函数，那么就选择它
+- 如果存在多个这样的函数，但其中有一个时非模板函数，则选择该函数
+- 如果存在多个适合的函数，且他们都为模板函数，但其中有一个函数比其他函数更具体，则选择该函数
+- 如果有多个同样合适的非模板函数或模板函数，但没有一个函数比其他函数更具体，那么调用时不确定的，是错误的
+- 如果不存在匹配的函数，那也是错误的
 ### 模板函数的发展
-
 ## 总结
-
 ## 复习题
-
 ## 编程练习
