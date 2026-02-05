@@ -673,6 +673,18 @@ template void Swap<job>(job&, job&);
 - 如果有多个同样合适的非模板函数或模板函数，但没有一个函数比其他函数更具体，那么调用时不确定的，是错误的
 - 如果不存在匹配的函数，那也是错误的
 ### 模板函数的发展
+- 关键字 `decltype`，用来推断表达式的类型而不计算表达式本身,可以这样使用该关键字
+    ```cpp
+    int x;
+    decltype(x) y;   // make y the same type as x 
+    ```
+    给 `decltype` 提供的参数可以是表达式，也可以这样使用
+    ```cpp
+    decltype(x + y) xpy;   // make xpy the same type as x + y
+    xpy = x + y; 
+    ```
+    在模板和引用中也同样适用
+
 ## 总结
 ## 复习题
 ## 编程练习
