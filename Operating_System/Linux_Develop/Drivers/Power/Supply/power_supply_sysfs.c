@@ -31,13 +31,14 @@
  * (as a macro let's say).
  */
 
+// 定义回调
 #define POWER_SUPPLY_ATTR(_name)					\
 {									\
 	.attr = { .name = #_name },					\
 	.show = power_supply_show_property,				\
 	.store = power_supply_store_property,				\
 }
-
+// 对应所有可能的 POWER_SUPPLY_PROP_* 属性
 static struct device_attribute power_supply_attrs[];
 
 static const char * const power_supply_type_text[] = {
@@ -522,9 +523,10 @@ static struct device_attribute power_supply_attrs[] = {
 	POWER_SUPPLY_ATTR(serial_number),
 };
 
+// 把全量属性表变成具体的 sysfs 目录
 static struct attribute *
 __power_supply_attrs[ARRAY_SIZE(power_supply_attrs) + 1];
-
+// 属性表固定，每个设备只激活子集，给只读权限
 static umode_t power_supply_attr_is_visible(struct kobject *kobj,
 					   struct attribute *attr,
 					   int attrno)
@@ -562,6 +564,7 @@ static const struct attribute_group *power_supply_attr_groups[] = {
 	NULL,
 };
 
+// 将模块加载挂到 power_supply_class 的 sysfs 中
 void power_supply_init_attrs(struct device_type *dev_type)
 {
 	int i;
@@ -571,7 +574,7 @@ void power_supply_init_attrs(struct device_type *dev_type)
 	for (i = 0; i < ARRAY_SIZE(power_supply_attrs); i++)
 		__power_supply_attrs[i] = &power_supply_attrs[i].attr;
 }
-
+// 将字符转换为大写
 static char *kstruprdup(const char *str, gfp_t gfp)
 {
 	char *ret, *ustr;
@@ -589,26 +592,28 @@ static char *kstruprdup(const char *str, gfp_t gfp)
 	return ret;
 }
 
+// power-supply 子系统注册到内核 kobject/uevent 机制的回调，当电源属性发生变化时会被调用，把当前所有属性打包成 uevent 环境变量发给用户态
 int power_supply_uevent(struct device *dev, struct kobj_uevent_env *env)
 {
+    // 取得驱动的数据结构
 	struct power_supply *psy = dev_get_drvdata(dev);
 	int ret = 0, j;
 	char *prop_buf;
 	char *attrname;
-
+    // 如果没有数据，直接返回
 	if (!psy || !psy->desc) {
 		dev_dbg(dev, "No power supply yet\n");
 		return ret;
 	}
-
+    // 添加设备名
 	ret = add_uevent_var(env, "POWER_SUPPLY_NAME=%s", psy->desc->name);
 	if (ret)
 		return ret;
-
+    // 为后续格式化准备一个页面缓冲区
 	prop_buf = (char *)get_zeroed_page(GFP_KERNEL);
 	if (!prop_buf)
 		return -ENOMEM;
-
+    // 遍历驱动支持的属性列表
 	for (j = 0; j < psy->desc->num_properties; j++) {
 		struct device_attribute *attr;
 		char *line;
@@ -620,7 +625,7 @@ int power_supply_uevent(struct device *dev, struct kobj_uevent_env *env)
 				__FILE__, __LINE__);
 			continue;
 		}
-
+        // 读取属性值
 		ret = power_supply_show_property(dev, attr, prop_buf);
 		if (ret == -ENODEV || ret == -ENODATA) {
 			/* When a battery is absent, we expect -ENODEV. Don't abort;
@@ -631,19 +636,20 @@ int power_supply_uevent(struct device *dev, struct kobj_uevent_env *env)
 
 		if (ret < 0)
 			goto out;
-
+        // 去掉末尾的换行符
 		line = strchr(prop_buf, '\n');
 		if (line)
 			*line = 0;
-
+        // 读取属性值
 		attrname = kstruprdup(attr->attr.name, GFP_KERNEL);
 		if (!attrname) {
 			ret = -ENOMEM;
 			goto out;
 		}
-
+        // 追加到 uevent 环境中
 		ret = add_uevent_var(env, "POWER_SUPPLY_%s=%s", attrname, prop_buf);
-		kfree(attrname);
+		// 释放资源
+        kfree(attrname);
 		if (ret)
 			goto out;
 	}
