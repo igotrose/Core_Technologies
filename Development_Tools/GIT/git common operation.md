@@ -187,3 +187,8 @@ git lfs install
 ```bash
 git lfs track "*.ext"
 ```
+### 补丁操作
+- 添加提交之后，生成一个 `patch` 文件
+    ```bash
+    git format-patch -1 <commit_id>
+    ```
