@@ -26,7 +26,7 @@ Docker 是一个开源的应用容器引擎，可以轻松的为任何应用创�
     ```bash
     sudo install -m 0755 -d /etc/apt/keyrings
     curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-    suudo chmod a+r /etc/apt/keyrings/docker.gpg
+    sudo chmod a+r /etc/apt/keyrings/docker.gpg
     ```
     - 设置稳定版仓库
     ```bash 
