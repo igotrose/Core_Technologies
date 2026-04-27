@@ -410,8 +410,11 @@ enum binder_driver_return_protocol {
 	 */
 };
 
-enum binder_driver_command_protocol {
+enum binder_driver_command_protocol
+{
+	// Client 向 Binder 驱动发送请求数据
 	BC_TRANSACTION = _IOW('c', 0, struct binder_transaction_data),
+	// Server 向 Binder 驱动发送请求数据
 	BC_REPLY = _IOW('c', 1, struct binder_transaction_data),
 	/*
 	 * binder_transaction_data: the sent command.
@@ -423,21 +426,23 @@ enum binder_driver_command_protocol {
 	 * int:  0 if the last BR_ATTEMPT_ACQUIRE was not successful.
 	 * Else you have acquired a primary reference on the object.
 	 */
-
+	// 释放内存
 	BC_FREE_BUFFER = _IOW('c', 3, binder_uintptr_t),
 	/*
 	 * void *: ptr to transaction data received on a read
 	 */
-
+	// binder_ref 弱引用 + - 
 	BC_INCREFS = _IOW('c', 4, __u32),
 	BC_ACQUIRE = _IOW('c', 5, __u32),
+	// binder_ref 强引用 + -
 	BC_RELEASE = _IOW('c', 6, __u32),
 	BC_DECREFS = _IOW('c', 7, __u32),
 	/*
 	 * int:	descriptor
 	 */
-
+	// binder_node 弱引用 -
 	BC_INCREFS_DONE = _IOW('c', 8, struct binder_ptr_cookie),
+	// binder_node 强引用 -
 	BC_ACQUIRE_DONE = _IOW('c', 9, struct binder_ptr_cookie),
 	/*
 	 * void *: ptr to binder
@@ -450,13 +455,13 @@ enum binder_driver_command_protocol {
 	 * int: priority
 	 * int: descriptor
 	 */
-
+	// 创建新的 looper 线程
 	BC_REGISTER_LOOPER = _IO('c', 11),
 	/*
 	 * No parameters.
 	 * Register a spawned looper thread with the device.
 	 */
-
+	// 应用进入和退出 Binder 循环
 	BC_ENTER_LOOPER = _IO('c', 12),
 	BC_EXIT_LOOPER = _IO('c', 13),
 	/*
@@ -466,21 +471,21 @@ enum binder_driver_command_protocol {
 	 * used so the binder can have an accurate count of the number
 	 * of looping threads it has available.
 	 */
-
+	// 注册死亡通知
 	BC_REQUEST_DEATH_NOTIFICATION = _IOW('c', 14,
 						struct binder_handle_cookie),
 	/*
 	 * int: handle
 	 * void *: cookie
 	 */
-
+	// 取消注册死亡通知
 	BC_CLEAR_DEATH_NOTIFICATION = _IOW('c', 15,
 						struct binder_handle_cookie),
 	/*
 	 * int: handle
 	 * void *: cookie
 	 */
-
+	// 已经完成 binder 的死亡通知
 	BC_DEAD_BINDER_DONE = _IOW('c', 16, binder_uintptr_t),
 	/*
 	 * void *: cookie

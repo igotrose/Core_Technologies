@@ -224,7 +224,7 @@ struct binder_work {
 	struct list_head entry;
 
 	enum binder_work_type {
-		BINDER_WORK_TRANSACTION = 1,
+		BINDER_WORK_TRANSACTION = 1,		// 最常见类型
 		BINDER_WORK_TRANSACTION_COMPLETE,
 		BINDER_WORK_RETURN_ERROR,
 		BINDER_WORK_NODE,
@@ -2824,10 +2824,10 @@ static void binder_transaction(struct binder_proc *proc,
 	binder_size_t off_start_offset, off_end_offset;
 	binder_size_t off_min;
 	binder_size_t sg_buf_offset, sg_buf_end_offset;
-	struct binder_proc *target_proc = NULL;
-	struct binder_thread *target_thread = NULL;
-	struct binder_node *target_node = NULL;
-	struct binder_transaction *in_reply_to = NULL;
+	struct binder_proc *target_proc = NULL;					// 目标线程
+	struct binder_thread *target_thread = NULL;				// 目标进程
+	struct binder_node* target_node = NULL;					// 目标binder节点
+	struct binder_transaction* in_reply_to = NULL;	
 	struct binder_transaction_log_entry *e;
 	uint32_t return_error = 0;
 	uint32_t return_error_param = 0;
@@ -3033,6 +3033,7 @@ static void binder_transaction(struct binder_proc *proc,
 		e->to_thread = target_thread->pid;
 	e->to_proc = target_proc->pid;
 
+	// 分配两个结构体内存
 	/* TODO: reuse incoming transaction for reply */
 	t = kzalloc(sizeof(*t), GFP_KERNEL);
 	if (t == NULL) {
@@ -3110,7 +3111,7 @@ static void binder_transaction(struct binder_proc *proc,
 	}
 
 	trace_binder_transaction(reply, t, target_node);
-
+	// 从 target_proc 分配一块 buffer
 	t->buffer = binder_alloc_new_buf(&target_proc->alloc, tr->data_size,
 		tr->offsets_size, extra_buffers_size,
 		!reply && (t->flags & TF_ONE_WAY), current->tgid);
@@ -3397,7 +3398,9 @@ static void binder_transaction(struct binder_proc *proc,
 			goto err_bad_object_type;
 		}
 	}
+	// 向目标线程的 todo 队列添加 BINDER_WORK_TRANSACTION_COMPLETE 事务
 	tcomplete->type = BINDER_WORK_TRANSACTION_COMPLETE;
+	// 向目标进程的 target_list 添加 BINDER_WORK_TRANSACTION 事务
 	t->work.type = BINDER_WORK_TRANSACTION;
 
 	if (reply) {
@@ -3587,11 +3590,12 @@ static int binder_thread_write(struct binder_proc *proc,
 
 	while (ptr < end && thread->return_error.cmd == BR_OK) {
 		int ret;
-
+		// 获取 IPC 数据中的 Binder 协议 BC 码
 		if (get_user(cmd, (uint32_t __user *)ptr))
 			return -EFAULT;
 		ptr += sizeof(uint32_t);
 		trace_binder_command(cmd);
+		// 根据当前 Binder 命令号，对全局、进程和线程三级统计计数器分别做一次原子加一
 		if (_IOC_NR(cmd) < ARRAY_SIZE(binder_stats.bc)) {
 			atomic_inc(&binder_stats.bc[_IOC_NR(cmd)]);
 			atomic_inc(&proc->stats.bc[_IOC_NR(cmd)]);
@@ -3606,7 +3610,7 @@ static int binder_thread_write(struct binder_proc *proc,
 			const char *debug_string;
 			bool strong = cmd == BC_ACQUIRE || cmd == BC_RELEASE;
 			bool increment = cmd == BC_INCREFS || cmd == BC_ACQUIRE;
-			struct binder_ref_data rdata;
+			struct binder_ref_data rdata;·
 
 			if (get_user(target, (uint32_t __user *)ptr))
 				return -EFAULT;
@@ -3778,7 +3782,7 @@ static int binder_thread_write(struct binder_proc *proc,
 		case BC_TRANSACTION_SG:
 		case BC_REPLY_SG: {
 			struct binder_transaction_data_sg tr;
-
+			// 拷贝用户空间 tr 到内核
 			if (copy_from_user(&tr, ptr, sizeof(tr)))
 				return -EFAULT;
 			ptr += sizeof(tr);
@@ -4180,6 +4184,7 @@ static int binder_thread_read(struct binder_proc *proc,
 retry:
 	binder_inner_proc_lock(proc);
 	wait_for_proc_work = binder_available_for_proc_work_ilocked(thread);
+	// 根据 wait_for_proc_work 来决定 wait 在线程还是进程的等待队列
 	binder_inner_proc_unlock(proc);
 
 	thread->looper |= BINDER_LOOPER_STATE_WAITING;
@@ -4232,6 +4237,7 @@ retry:
 			/* no data added */
 			if (ptr - buffer == 4 && !thread->looper_need_return)
 				goto retry;
+			// 当&thread->todo和&proc->todo都为空的时候，goto到retry标签
 			break;
 		}
 
@@ -4541,6 +4547,7 @@ retry:
 done:
 
 	*consumed = ptr - buffer;
+	// 当满足请求线程加已准备线程等于0，已启动线程数小于最大线程数且looper状态为已注册或已进入时创建新的线程
 	binder_inner_proc_lock(proc);
 	if (proc->requested_threads == 0 &&
 	    list_empty(&thread->proc->waiting_threads) &&
@@ -4553,6 +4560,7 @@ done:
 		binder_debug(BINDER_DEBUG_THREADS,
 			     "%d:%d BR_SPAWN_LOOPER\n",
 			     proc->pid, thread->pid);
+		// 生成BR_SPAWN_LOOPER命令，用于创建新的线程
 		if (put_user(BR_SPAWN_LOOPER, (uint32_t __user *)buffer))
 			return -EFAULT;
 		binder_stat_br(proc, thread, BR_SPAWN_LOOPER);
