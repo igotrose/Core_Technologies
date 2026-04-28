@@ -322,7 +322,7 @@ enum binder_driver_return_protocol {
 	/*
 	 * int: error code
 	 */
-
+	// 操作完成
 	BR_OK = _IO('r', 1),
 	/* No parameters! */
 
@@ -331,7 +331,9 @@ enum binder_driver_return_protocol {
 	/*
 	 * binder_transaction_data_secctx: the received command.
 	 */
+	// binder 向 server 端发送请求数据
 	BR_TRANSACTION = _IOR('r', 2, struct binder_transaction_data),
+	// binder 向 client 端发送回复数据
 	BR_REPLY = _IOR('r', 3, struct binder_transaction_data),
 	/*
 	 * binder_transaction_data: the received command.
@@ -343,13 +345,13 @@ enum binder_driver_return_protocol {
 	 * int: 0 if the last bcATTEMPT_ACQUIRE was not successful.
 	 * Else the remote object has acquired a primary reference.
 	 */
-
+	// 回复失败，往往事线程或节点为空
 	BR_DEAD_REPLY = _IO('r', 5),
 	/*
 	 * The target of the last transaction (either a bcTRANSACTION or
 	 * a bcATTEMPT_ACQUIRE) is no longer with us.  No parameters.
 	 */
-
+	// 对请求发送的成功反馈
 	BR_TRANSACTION_COMPLETE = _IO('r', 6),
 	/*
 	 * No parameters... always refers to the last transaction requested
@@ -373,13 +375,13 @@ enum binder_driver_return_protocol {
 	 * void *: ptr to binder
 	 * void *: cookie for binder
 	 */
-
+	// 不做任何事
 	BR_NOOP = _IO('r', 12),
 	/*
 	 * No parameters.  Do nothing and examine the next command.  It exists
 	 * primarily so that we can replace it with a BR_SPAWN_LOOPER command.
 	 */
-
+	// 创建新的 looper 线程
 	BR_SPAWN_LOOPER = _IO('r', 13),
 	/*
 	 * No parameters.  The driver has determined that a process has no
@@ -393,7 +395,7 @@ enum binder_driver_return_protocol {
 	 * not currently supported
 	 * stop threadpool thread
 	 */
-
+	// binder 向 client 端发送死亡通知
 	BR_DEAD_BINDER = _IOR('r', 15, binder_uintptr_t),
 	/*
 	 * void *: cookie

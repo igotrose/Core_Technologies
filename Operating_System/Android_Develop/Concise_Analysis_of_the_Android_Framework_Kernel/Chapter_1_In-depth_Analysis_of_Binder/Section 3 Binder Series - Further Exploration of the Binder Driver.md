@@ -42,8 +42,48 @@ Binder IPC 通信至少是两个进程的交互
     - 把这个事务封装成工作项
     - 挂到目标线程或目标进程的待处理队列
     - 之后目标线程在 `binder_thread_read()` 里读到 `BR_TRANSACTION`
-#### Binder 命令码
+#### `BC_PROTOCOL`
+binder 请求码，在`enum binder_driver_command_protocol` 有定义，用于应用程序项 binder 驱动设备发送请求信息
 ### `binder_thread_read()`
-### 通信过程
+通过该函数响应处理过程，根据不同的 `binder_work_type` 类型，生成不同的 `binder_return`，处理响应码的过程是在用户态处理
+### `BR_PROTOCOL`
+binder 响应码，在`enum binder_driver_return_protocol` 有定义，用于应用程序项 binder 驱动设备发送响应信息
+### `binder_work` 类型
+- `BINDER_WORK_TRANSACTION`
+    - binder_transaction()
+    - binder_release_work()
+- `BINDER_WORK_TRANSACTION_COMPLETE`
+binder_transaction()
+    - binder_release_work()
+- `BINDER_WORK_NODE`
+    - binder_new_node()
+- `BINDER_WORK_DEAD_BINDER`
+    - binder_thread_write()，收到BC_REQUEST_DEATH_NOTIFICATION
+- `BINDER_WORK_DEAD_BINDER_AND_CLEAR`
+    - binder_thread_write()，收到BC_CLEAR_DEATH_NOTIFICATION
+- `BINDER_WORK_CLEAR_DEATH_NOTIFICATION`
+    - binder_thread_write()，收到BC_CLEAR_DEATH_NOTIFICATION
+    - binder_thread_write()，收到BC_DEAD_BINDER_DONE
 ## 场景总结
+### BC 协议使用场景
+|BC 协议|使用场景|
+|`BC_TRANSACTION`|`IPC.transact()`|
+|`BC_REPLY`|`IPC.sendReply()`|
+|`BC_FREE_BUFFER`|`IPC.freeBuffer()`|
+|`BC_REQUEST_DEATH_NOTIFICATION`|`IPC.requestDeathNotification()`|
+|`BC_CLEAR_DEATH_NOTIFICATION`|`IPC.clearDeathNotification()`|
+|`BC_DEAD_BINDER_DONE`|`IPC.execute()`|
+
+`binder_thread_write()`根据不同的BC协议而执行不同流程
+### BR 协议使用场景
+|BR 协议| 触发时机 |
+|`BR_TRANSACTION`|收到`BINDER_WORK_TRANSACTION`|
+|`BR_REPLY`|收到`BINDER_WORK_TRANSACTION`|
+|`BR_TRANSACTION_COMPLETE`|收到`BINDER_WORK_TRANSACTION_COMPLETE`|
+|`BR_DEAD_BINDER`|收到`BINDER_WORK_DEAD_BINDER或BINDER_WORK_DEAD_BINDER_AND_CLEAR`|
+|`BR_CLEAR_DEATH_NOTIFICATION_DONE`|收到`BINDER_WORK_CLEAR_DEATH_NOTIFICATION`|
+
+![alt text](protocol_convert.png)
 ## Binder 内存机制
+本质上，发送方先把数据交给 Binder 驱动，驱动把数据放到接收方可访问的映射缓冲区里面，接收方再从自己的映射区读取数据完成通信
+![alt text](binder_data_process.png)
