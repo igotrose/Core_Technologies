@@ -22,3 +22,6 @@ Bineder 通信采用 C/S 架构，从组合视角来说，包含了 Client、Ser
 /framework/native/cmds/servicemanger
 /kernel/drivers/staging/android
 ```
+
+## tip
+pdf 中讲解的 Android Framework 是老版本，所以主要用来了解 `framework` 大致知识
