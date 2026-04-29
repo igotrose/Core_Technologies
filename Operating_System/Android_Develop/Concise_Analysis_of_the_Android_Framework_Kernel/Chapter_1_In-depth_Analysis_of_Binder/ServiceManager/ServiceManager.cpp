@@ -127,15 +127,19 @@ Status ServiceManager::checkService(const std::string& name, sp<IBinder>* outBin
     // returns ok regardless of result for legacy reasons
     return Status::ok();
 }
-
-sp<IBinder> ServiceManager::tryGetService(const std::string& name, bool startIfNotFound) {
+// 根据服务名，从 ServiceManager 的注册表里找出对应的 Binder 服务对象，必要时尝试拉起懒加载服务 
+sp<IBinder> ServiceManager::tryGetService(const std::string& name, bool startIfNotFound)
+{
+    // 获取上下文
     auto ctx = mAccess->getCallingContext();
 
     sp<IBinder> out;
     Service* service = nullptr;
-    if (auto it = mNameToService.find(name); it != mNameToService.end()) {
+    // 按名字查询服务
+    if (auto it = mNameToService.find(name); it != mNameToService.end())
+    {
         service = &(it->second);
-
+        // 检查 isolated 进程能不能访问
         if (!service->allowIsolated) {
             uid_t appid = multiuser_get_app_id(ctx.uid);
             bool isIsolated = appid >= AID_ISOLATED_START && appid <= AID_ISOLATED_END;
@@ -146,15 +150,15 @@ sp<IBinder> ServiceManager::tryGetService(const std::string& name, bool startIfN
         }
         out = service->binder;
     }
-
+    // 权限检查
     if (!mAccess->canFind(ctx, name)) {
         return nullptr;
     }
-
+    // 找不到服务尝试拉起
     if (!out && startIfNotFound) {
         tryStartService(name);
     }
-
+    // 找到了标记有客户端
     if (out) {
         // Setting this guarantee each time we hand out a binder ensures that the client-checking
         // loop knows about the event even if the client immediately drops the service
@@ -163,7 +167,7 @@ sp<IBinder> ServiceManager::tryGetService(const std::string& name, bool startIfN
 
     return out;
 }
-
+// 检查名字合法性
 bool isValidServiceName(const std::string& name) {
     if (name.size() == 0) return false;
     if (name.size() > 127) return false;
@@ -178,10 +182,12 @@ bool isValidServiceName(const std::string& name) {
 
     return true;
 }
-
-Status ServiceManager::addService(const std::string& name, const sp<IBinder>& binder, bool allowIsolated, int32_t dumpPriority) {
+// 添加服务
+Status ServiceManager::addService(const std::string& name, const sp<IBinder>& binder, bool allowIsolated, int32_t dumpPriority)
+{
+    // 获取调用者身份
     auto ctx = mAccess->getCallingContext();
-
+    // 对服务进行一次合法性和权限检查
     // apps cannot add services
     if (multiuser_get_app_id(ctx.uid) >= AID_APP) {
         return Status::fromExceptionCode(Status::EX_SECURITY);
@@ -279,7 +285,7 @@ Status ServiceManager::registerForNotifications(
     if (OK != IInterface::asBinder(callback)->linkToDeath(this)) {
         LOG(ERROR) << "Could not linkToDeath when adding " << name;
         return Status::fromExceptionCode(Status::EX_ILLEGAL_STATE);
-    }
+    }z
 
     mNameToRegistrationCallback[name].push_back(callback);
 
@@ -352,8 +358,12 @@ void ServiceManager::removeRegistrationCallback(const wp<IBinder>& who,
     }
 }
 
-void ServiceManager::binderDied(const wp<IBinder>& who) {
-    for (auto it = mNameToService.begin(); it != mNameToService.end();) {
+// 服务死亡清理，清理死掉的 binder 服务 
+void ServiceManager::binderDied(const wp<IBinder>& who)
+{
+    // 遍历服务表
+    for (auto it = mNameToService.begin(); it != mNameToService.end();)
+    {
         if (who == it->second.binder) {
             it = mNameToService.erase(it);
         } else {

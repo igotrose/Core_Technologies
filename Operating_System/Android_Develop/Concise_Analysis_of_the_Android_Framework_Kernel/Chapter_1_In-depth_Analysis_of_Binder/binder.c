@@ -1111,12 +1111,14 @@ static struct binder_node *binder_init_node_ilocked(
 	node = new_node;
 	binder_stats_created(BINDER_STAT_NODE);
 	node->tmp_refs++;
+	// 将新创建的 node 对象添加到 proc 红黑树
 	rb_link_node(&node->rb_node, parent, p);
 	rb_insert_color(&node->rb_node, &proc->nodes);
 	node->debug_id = atomic_inc_return(&binder_last_id);
 	node->proc = proc;
 	node->ptr = ptr;
 	node->cookie = cookie;
+	// 设置 binder_work 的 type 
 	node->work.type = BINDER_WORK_NODE;
 	node->min_priority = flags & FLAT_BINDER_FLAG_PRIORITY_MASK;
 	node->accept_fds = !!(flags & FLAT_BINDER_FLAG_ACCEPTS_FDS);
@@ -1135,8 +1137,9 @@ static struct binder_node *binder_init_node_ilocked(
 static struct binder_node *binder_new_node(struct binder_proc *proc,
 					   struct flat_binder_object *fp)
 {
-	struct binder_node *node;
-	struct binder_node *new_node = kzalloc(sizeof(*node), GFP_KERNEL);
+	struct binder_node* node;
+	// 给新创建的 binder_node 分配内核空间
+	struct binder_node* new_node = kzalloc(sizeof(*node), GFP_KERNEL);
 
 	if (!new_node)
 		return NULL;
@@ -4922,7 +4925,9 @@ static int binder_ioctl_set_ctx_mgr(struct file *filp,
 	kuid_t curr_euid = current_euid();
 
 	mutex_lock(&context->context_mgr_node_lock);
-	if (context->binder_context_mgr_node) {
+	// 保证只创建一次上下文管理者节点
+	if (context->binder_context_mgr_node)
+	{
 		pr_err("BINDER_SET_CONTEXT_MGR already set\n");
 		ret = -EBUSY;
 		goto out;
@@ -4939,9 +4944,13 @@ static int binder_ioctl_set_ctx_mgr(struct file *filp,
 			ret = -EPERM;
 			goto out;
 		}
-	} else {
+	}
+	else
+	{
+		// 如果上下文管理者的 uid 无效，则将当前线程的 euid 作为上下文管理者的 uid
 		context->binder_context_mgr_uid = curr_euid;
 	}
+	// 创建 ServiceManager 实体
 	new_node = binder_new_node(proc, fbo);
 	if (!new_node) {
 		ret = -ENOMEM;
